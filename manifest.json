@@ -1,0 +1,24 @@
+{
+  "name": "Omamori – Die Gunst der Geister",
+  "short_name": "Omamori",
+  "description": "Ein magisches Strategiespiel für 2 Spieler im japanischen Wald",
+  "start_url": "./garden-game.html",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#1e3d2a",
+  "theme_color": "#1e3d2a",
+  "icons": [
+    {
+      "src": "omamori-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "omamori-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
