@@ -4028,13 +4028,30 @@ function renderPinkGrid(playerIdx, canMark, markedThisTurn, justIdx){
   grid.innerHTML = '';
   const remaining = canMark - markedThisTurn;
 
+  // Gegner-Stand: letzter gefüllter Kreis des Gegners bekommt farbigen Ring
+  const oppIdx = 1 - playerIdx;
+  const oppFilled = G.pinkCircles[oppIdx].filter(Boolean).length;
+  const oppColor = oppIdx === 0 ? '#c0392b' : '#2980b9';
+  const oppMarkerIdx = oppFilled - 1; // Index des letzten Gegner-Kreises (-1 wenn 0)
+
   G.pinkCircles[playerIdx].forEach((filled, idx) => {
     const el = document.createElement('div');
+    const isOppMarker = oppFilled > 0 && idx === oppMarkerIdx;
+
     if(filled){
       el.className = 'pink-circle filled' + (idx===justIdx?' just-filled':'');
       el.textContent = '✕';
+      if(isOppMarker){
+        el.style.outline = `3px solid ${oppColor}`;
+        el.style.outlineOffset = '1px';
+      }
     } else if(remaining > 0){
       el.className = 'pink-circle clickable';
+      if(isOppMarker){
+        el.style.borderColor = oppColor;
+        el.style.borderStyle = 'solid';
+        el.style.background = `${oppColor}22`;
+      }
       let _lock = false;
       el.addEventListener('pointerdown', e=>e.stopPropagation(), {passive:true});
       el.addEventListener('pointerup', e=>{
@@ -4044,16 +4061,24 @@ function renderPinkGrid(playerIdx, canMark, markedThisTurn, justIdx){
       }, {passive:false});
     } else {
       el.className = 'pink-circle';
+      if(isOppMarker){
+        el.style.borderColor = oppColor;
+        el.style.borderStyle = 'solid';
+        el.style.background = `${oppColor}18`;
+      }
     }
     grid.appendChild(el);
   });
 
-  // Hint aktualisieren
+  // Hint: eigener Stand + Gegner-Stand
   const hint = document.getElementById('pink-hint');
+  hint.style.color = '';
+  const myFilled = G.pinkCircles[playerIdx].filter(Boolean).length;
+  const oppHint = `<span style="color:${oppColor};font-weight:700"> · Gegner: ${oppFilled} ●</span>`;
   if(remaining > 0){
-    hint.textContent = `Noch ${remaining} Kreis${remaining!==1?'e':''} wählen`;
+    hint.innerHTML = `Noch ${remaining} Kreis${remaining!==1?'e':''} wählen${oppHint}`;
   } else {
-    hint.textContent = '✓ Alle Kreuze gesetzt!';
+    hint.innerHTML = `✓ Alle gesetzt · Du: ${myFilled}${oppHint}`;
     hint.style.color = '#4caf50';
   }
 }
