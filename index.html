@@ -87,8 +87,7 @@
     font-size: 0.82rem;
   }
   .coin-sep { opacity: 0.4; font-size: 0.7rem; }
-  .coin-icon { display:inline-flex; align-items:center; vertical-align:middle; }
-  .coin-icon svg { width:14px; height:14px; }
+  .coin-icon { font-size: 0.78rem; }
   .score-chip .dot {
     width: 8px; height: 8px; border-radius: 50%;
   }
@@ -1778,14 +1777,14 @@
         <div class="dot" style="background:var(--p1)"></div>
         <span id="sc0">0</span>
         <span class="coin-sep">·</span>
-        <span class="coin-icon"><svg viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg"><ellipse cx="10" cy="12" rx="9" ry="11" fill="#c8860a" opacity="0.35"/><ellipse cx="10" cy="11.5" rx="9" ry="11" fill="url(#kg)" stroke="#7a4e00" stroke-width="0.8"/><ellipse cx="10" cy="11" rx="7" ry="8.5" fill="none" stroke="#f5d060" stroke-width="0.7" opacity="0.6"/><ellipse cx="10" cy="11" rx="2.5" ry="2" fill="#b83a2e" opacity="0.85"/><defs><radialGradient id="kg" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffe066"/><stop offset="55%" stop-color="#d4a800"/><stop offset="100%" stop-color="#9a6800"/></radialGradient></defs></svg></span><span id="co0">0</span>
+        <span class="coin-icon">🪙</span><span id="co0">0</span>
         <span id="cats0" style="font-size:0.75rem;letter-spacing:1px"></span>
       </div>
       <div class="score-chip" id="chip1">
         <div class="dot" style="background:var(--p2)"></div>
         <span id="sc1">0</span>
         <span class="coin-sep">·</span>
-        <span class="coin-icon"><svg viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg"><ellipse cx="10" cy="12" rx="9" ry="11" fill="#c8860a" opacity="0.35"/><ellipse cx="10" cy="11.5" rx="9" ry="11" fill="url(#kg2)" stroke="#7a4e00" stroke-width="0.8"/><ellipse cx="10" cy="11" rx="7" ry="8.5" fill="none" stroke="#f5d060" stroke-width="0.7" opacity="0.6"/><ellipse cx="10" cy="11" rx="2.5" ry="2" fill="#b83a2e" opacity="0.85"/><defs><radialGradient id="kg2" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#ffe066"/><stop offset="55%" stop-color="#d4a800"/><stop offset="100%" stop-color="#9a6800"/></radialGradient></defs></svg></span><span id="co1">1</span>
+        <span class="coin-icon">🪙</span><span id="co1">1</span>
         <span id="cats1" style="font-size:0.75rem;letter-spacing:1px"></span>
       </div>
     </div>
@@ -1922,7 +1921,7 @@
     <h3>⛩️ Schrein entdeckt!</h3>
     <div class="sub" id="build-sub"></div>
     <div class="build-options" id="build-options"></div>
-    <button class="build-pass" id="build-pass"></button>
+    <button class="build-pass" id="build-pass">🪙 Lieber eine Goldmünze nehmen</button>
   </div>
 </div>
 
@@ -1936,22 +1935,6 @@
 //  CONSTANTS
 // ═══════════════════════════════════════════════
 const SVG_NS = 'http://www.w3.org/2000/svg';
-
-// ── KOBAN: japanische Goldmünze als SVG-String ───────────────────
-function koban(size=16){
-  const s = size;
-  return `<svg width="${s}" height="${s}" viewBox="0 0 20 24" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;margin:0 1px">` +
-    `<ellipse cx="10" cy="12.5" rx="9" ry="11" fill="#c8860a" opacity="0.3"/>` +
-    `<ellipse cx="10" cy="11.5" rx="9" ry="11" fill="#d4a800" stroke="#7a4e00" stroke-width="0.8"/>` +
-    `<ellipse cx="10" cy="11.5" rx="9" ry="11" fill="url(#kgr)" stroke="#7a4e00" stroke-width="0.8"/>` +
-    `<ellipse cx="10" cy="11" rx="7" ry="8.5" fill="none" stroke="#f5d060" stroke-width="0.7" opacity="0.65"/>` +
-    `<ellipse cx="10" cy="11" rx="2.5" ry="2" fill="#b83a2e" opacity="0.9"/>` +
-    `<defs><radialGradient id="kgr" cx="38%" cy="30%" r="70%">` +
-    `<stop offset="0%" stop-color="#fff0a0"/><stop offset="45%" stop-color="#f0c800"/><stop offset="100%" stop-color="#9a6800"/>` +
-    `</radialGradient></defs></svg>`;
-}
-// Ersetzt alle 🪙 in einem String durch Koban-SVG (für innerHTML-Toasts etc.)
-function goldify(str, size=15){ return str.replace(/🪙/g, koban(size)); }
 
 // Grid: side length & derived height
 const S = 52, H = S * Math.sqrt(3) / 2;
@@ -3366,9 +3349,9 @@ function renderBingoCoinAdjust(playerIdx, baseSum){
 
   const lbl = document.createElement('div');
   lbl.className = 'coin-adjust-label';
-  lbl.innerHTML = goldify(adj !== 0
+  lbl.textContent = adj !== 0
     ? `Summe ${adj>0?'+':''}${adj} · 1🪙 genutzt`
-    : hasMints ? `🪙 ${G.coins[playerIdx]} · Summe ±1?` : 'Keine Münzen', 13);
+    : hasMints ? `🪙 ${G.coins[playerIdx]} · Summe ±1?` : 'Keine Münzen';
 
   function stopP(el){ el.addEventListener('pointerdown',e=>e.stopPropagation(),{passive:true}); }
   stopP(btnMinus); stopP(btnPlus);
@@ -3415,7 +3398,7 @@ function renderBingoGrid(playerIdx, grassSum, eligible, justRi, justCi){
   for(let ci=0; ci<5; ci++){
     const cb = document.createElement('div');
     cb.className = 'bingo-col-bonus' + (G.bingoColDone[playerIdx][ci]?' done':'');
-    cb.innerHTML = goldify(`+${BINGO_COL_BONUS[ci]}🪙`, 12);
+    cb.textContent = `+${BINGO_COL_BONUS[ci]}🪙`;
     colHeader.appendChild(cb);
   }
   wrap.appendChild(colHeader);
@@ -3684,7 +3667,7 @@ function renderBingoGridWildcard(playerIdx, maxVal, eligible, justRi, justCi){
   for(let ci=0; ci<5; ci++){
     const cb = document.createElement('div');
     cb.className = 'bingo-col-bonus' + (G.bingoColDone[playerIdx][ci]?' done':'');
-    cb.innerHTML = goldify(`+${BINGO_COL_BONUS[ci]}🪙`, 12);
+    cb.textContent = `+${BINGO_COL_BONUS[ci]}🪙`;
     colHeader.appendChild(cb);
   }
   wrap.appendChild(colHeader);
@@ -3950,7 +3933,7 @@ function doSpin(state, spinBtn, takeBtn){
       if(result === 0){
         previewEl.textContent = '😬 Null Münzen – weiteres Drehen lohnt sich!';
       } else {
-        previewEl.innerHTML = goldify(`= +${result} 🪙 wenn du jetzt nimmst`, 14);
+        previewEl.textContent = `= +${result} 🪙 wenn du jetzt nimmst`;
       }
 
       renderWheelSpins(state);
@@ -3961,7 +3944,7 @@ function doSpin(state, spinBtn, takeBtn){
         spinBtn.textContent = `🍄 Nochmal (${spinsLeft}× übrig)`;
         spinBtn.disabled = false;
         if(result > 0){
-          takeBtn.innerHTML = goldify(`✓ ${result} 🪙 nehmen`, 14);
+          takeBtn.textContent = `✓ ${result} 🪙 nehmen`;
           takeBtn.disabled = false;
           takeBtn.style.display = 'block';
         } else {
@@ -3973,7 +3956,7 @@ function doSpin(state, spinBtn, takeBtn){
         spinBtn.disabled = true;
         spinBtn.textContent = 'Glückspilz ist müde';
         if(result > 0){
-          takeBtn.innerHTML = goldify(`✓ ${result} 🪙 nehmen · Fertig`, 14);
+          takeBtn.textContent = `✓ ${result} 🪙 nehmen · Fertig`;
           takeBtn.disabled = false;
           takeBtn.style.display = 'block';
         } else {
@@ -4239,7 +4222,7 @@ function renderReviewContent(){
       const cb=document.createElement('div');
       cb.style.cssText=`flex:1;text-align:center;font-size:0.62rem;font-weight:700;
         color:${G.bingoColDone[p][ci]?'#c8930a':'#bbb'};`;
-      cb.innerHTML=goldify(`+${BINGO_COL_BONUS[ci]}🪙`, 12);
+      cb.textContent=`+${BINGO_COL_BONUS[ci]}🪙`;
       colH.appendChild(cb);
     }
     const sp2=document.createElement('div'); sp2.style.cssText='width:44px;flex-shrink:0;';
@@ -4457,9 +4440,9 @@ function renderScoreBlockCoinAdjust(playerIdx, baseValue, isDouble, colorIdx){
 
   const lbl = document.createElement('div');
   lbl.className = 'coin-adjust-label';
-  lbl.innerHTML = goldify(adj !== 0
+  lbl.textContent = adj !== 0
     ? `${adj > 0 ? '+' : ''}${adj} · 1🪙 genutzt`
-    : hasMints ? `🪙 ${G.coins[playerIdx]} · ±1 anpassen?` : 'Keine Münzen', 13);
+    : hasMints ? `🪙 ${G.coins[playerIdx]} · ±1 anpassen?` : 'Keine Münzen';
 
   function stopP(el){ el.addEventListener('pointerdown',e=>e.stopPropagation(),{passive:true}); }
   stopP(btnMinus); stopP(btnPlus);
@@ -4981,9 +4964,7 @@ function showBuildPopup(squares){
     optEl.innerHTML = '<p style="color:rgba(255,255,255,0.5);font-size:0.8rem;text-align:center">Keine Würfel verfügbar</p>';
   }
 
-  const bpassBtn = document.getElementById('build-pass');
-  bpassBtn.innerHTML = goldify('🪙 Lieber eine Goldmünze nehmen', 16);
-  bpassBtn.onclick = ()=>{ passBuild(); };
+  document.getElementById('build-pass').onclick = ()=>{ passBuild(); };
   document.getElementById('build-overlay').classList.add('show');
   } catch(err) {
     showToast('Popup-Fehler: ' + err.message);
@@ -5169,13 +5150,13 @@ function renderGameOverBreakdown(p, isWinner){
   const total = G.scores[p];
   const el = document.getElementById(`go-breakdown-${p}`);
   if(!el) return;
-  el.innerHTML = goldify(`
+  el.innerHTML = `
     <div class="go-bd-row"><span>⛩️ Schrein-Gunst</span><span>${bd.build}</span></div>
     <div class="go-bd-row"><span>📖 Kräuterbuch</span><span>${bd.bingo}</span></div>
     <div class="go-bd-row"><span>😸 Nimmersatter Geist</span><span>${bd.pink}${bd.pink>=13?' 🏆':''}</span></div>
     <div class="go-bd-row"><span>🪙 Münzen</span><span>${bd.coins}</span></div>
     <div class="go-bd-total"><span>Gesamt</span><span>${total}</span></div>
-  `, 16);
+  `;
   el.closest('.gameover-score').classList.toggle('winner', isWinner);
 }
 
@@ -5253,7 +5234,7 @@ document.getElementById('gameover-restart').addEventListener('pointerdown', e=>e
 let _tt;
 function showToast(msg, type=''){
   const el=document.getElementById('toast');
-  el.innerHTML = goldify(msg, 15);
+  el.textContent=msg;
   el.className = 'show' + (type ? ` toast-${type}` : '');
   clearTimeout(_tt);
   _tt=setTimeout(()=>{ el.classList.remove('show'); }, 2600);
