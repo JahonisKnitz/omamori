@@ -60,18 +60,117 @@
     letter-spacing: 0.04em;
     line-height: 1.1;
   }
-  .game-meta { display: flex; flex-direction: column; }
-  .game-subtitle {
-    font-family: 'Playfair Display', serif;
-    font-size: 0.72rem; font-style: italic;
-    color: rgba(255,255,255,0.6); letter-spacing: 0.05em;
-    line-height: 1;
+  .header-title-group {
+    display: flex; align-items: center; gap: 9px;
   }
-  .game-author {
-    font-size: 0.58rem;
-    color: rgba(255,255,255,0.35);
-    letter-spacing: 0.06em;
-    margin-top: 1px;
+  .btn-info {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(232,196,0,0.6);
+    background: rgba(232,196,0,0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #e8c400;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    animation: info-pulse 2.4s ease-in-out infinite;
+  }
+  .btn-info svg { display: block; }
+  .btn-info:hover {
+    background: rgba(232,196,0,0.32);
+    border-color: rgba(232,196,0,0.9);
+    animation: none;
+  }
+  .btn-info:active { transform: scale(0.88); animation: none; }
+  @keyframes info-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(232,196,0,0.45); }
+    50%      { box-shadow: 0 0 0 7px rgba(232,196,0,0); }
+  }
+
+  /* ── INFO OVERLAY ── */
+  #info-overlay {
+    position: fixed; inset: 0;
+    z-index: 8000;
+    background: rgba(10,22,12,0.65);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #info-overlay.show { opacity: 1; pointer-events: all; }
+  #info-panel {
+    background: linear-gradient(160deg, var(--moss) 0%, var(--moss-dark) 100%);
+    border: 1px solid rgba(90,148,112,0.4);
+    border-radius: 20px;
+    padding: 24px 22px 22px;
+    width: 88%; max-width: 360px;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
+    transform: scale(0.92) translateY(10px);
+    transition: transform 0.3s cubic-bezier(.34,1.3,.64,1);
+  }
+  #info-overlay.show #info-panel { transform: scale(1) translateY(0); }
+  #info-panel-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem; color: white;
+    margin-bottom: 1px; line-height: 1.2;
+  }
+  #info-panel-byline {
+    font-size: 0.72rem; color: rgba(255,255,255,0.5);
+    letter-spacing: 0.04em; margin-bottom: 12px;
+    font-style: italic;
+  }
+  .info-meta-row {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .info-meta-chip {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 20px;
+    padding: 4px 11px;
+    font-size: 0.73rem; color: rgba(255,255,255,0.85);
+    font-weight: 600; letter-spacing: 0.03em;
+  }
+  .info-meta-chip span { font-size: 0.85rem; }
+  .info-oneliner {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.92rem;
+    color: rgba(255,255,255,0.88);
+    font-style: italic;
+    line-height: 1.55;
+    padding: 12px 14px;
+    background: rgba(0,0,0,0.2);
+    border-left: 3px solid var(--marked);
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 16px;
+  }
+  .info-material-title {
+    font-size: 0.68rem;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.45);
+    font-weight: 700; margin-bottom: 9px;
+  }
+  .info-material-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .info-material-item {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 8px 11px;
+  }
+  .info-material-icon { font-size: 1.2rem; line-height: 1; flex-shrink: 0; }
+  .info-material-text { font-size: 0.78rem; color: rgba(255,255,255,0.8); font-weight: 600; }
+  #info-panel-close-hint {
+    font-size: 0.64rem; color: rgba(255,255,255,0.28);
+    letter-spacing: 0.08em; text-align: center;
+    margin-top: 16px;
   }
   .scores {
     display: flex;
@@ -1086,6 +1185,258 @@
   }
 
   /* ══════════════════════════════════════════════════════
+     SPIELANLEITUNG OVERLAY
+  ══════════════════════════════════════════════════════ */
+
+  #rules-overlay {
+    position: fixed; inset: 0; z-index: 9990;
+    display: none;
+    background: #0f1f0f;
+    flex-direction: column;
+    align-items: center;
+    justify-content: stretch;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    font-family: 'Lato', sans-serif;
+  }
+  #rules-overlay.show { display: flex; opacity: 1; }
+  #rules-overlay.fade-out { opacity: 0; pointer-events: none; }
+
+  .rules-bg {
+    position: absolute; inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .rules-inner {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 520px;
+    height: 100%;
+    display: flex; flex-direction: column;
+    margin: 0 auto;
+    padding: 0 0 12px;
+  }
+
+  .rules-header {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 18px 20px 12px;
+    flex-shrink: 0;
+  }
+  .rules-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.0rem;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .rules-pages {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  .rules-page {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    padding: 0 20px;
+    overflow-y: auto;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.4s ease, transform 0.4s cubic-bezier(.34,1.1,.64,1);
+    pointer-events: none;
+  }
+  .rules-page.active {
+    opacity: 1; transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .rules-page-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.55rem;
+    color: white;
+    text-align: center;
+    margin-bottom: 4px;
+    line-height: 1.15;
+  }
+  .rules-page-sub {
+    font-size: 0.76rem;
+    color: rgba(255,255,255,0.42);
+    text-align: center;
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+
+  .rules-card {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 14px;
+    padding: 13px 15px;
+    margin-bottom: 10px;
+  }
+  .rules-card-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .rules-card p {
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.72);
+    line-height: 1.55;
+    margin: 0;
+  }
+  .rules-card p + p { margin-top: 6px; }
+
+  .rules-tiles-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: flex-start;
+    margin: 4px 0 8px;
+    flex-wrap: wrap;
+  }
+  .rules-tile-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+  }
+  .rules-tile-label {
+    font-size: 0.64rem;
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+
+  .rules-dice-group {
+    display: flex; flex-direction: column; gap: 6px;
+    margin: 4px 0 2px;
+  }
+  .rules-dice-row {
+    display: flex; align-items: center; gap: 7px;
+  }
+  .rules-dice-row-label {
+    width: 90px; flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .rules-die {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem; font-weight: 700; color: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18);
+    flex-shrink: 0;
+  }
+  .rules-die.white-die { color: #222; background: white !important;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.6); }
+
+  .rules-score-row {
+    display: flex; align-items: flex-start;
+    gap: 10px; margin-bottom: 9px;
+  }
+  .rules-score-row:last-child { margin-bottom: 0; }
+  .rules-score-icon {
+    font-size: 1.35rem; flex-shrink: 0; line-height: 1;
+    margin-top: 1px;
+  }
+  .rules-score-text { flex: 1; }
+  .rules-score-name {
+    font-size: 0.82rem; font-weight: 700; color: white;
+    margin-bottom: 2px;
+  }
+  .rules-score-desc {
+    font-size: 0.74rem; color: rgba(255,255,255,0.58); line-height: 1.45;
+  }
+
+  .rules-nav {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px 6px;
+    gap: 12px;
+  }
+  .rules-dots {
+    display: flex; gap: 7px; align-items: center;
+  }
+  .rules-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    transition: background 0.3s, transform 0.3s;
+  }
+  .rules-dot.active {
+    background: var(--moss-light);
+    transform: scale(1.35);
+  }
+
+  .rules-btn {
+    border: none; border-radius: 30px;
+    padding: 10px 22px;
+    font-family: 'Lato', sans-serif; font-size: 0.87rem; font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s, opacity 0.15s;
+  }
+  .rules-btn:active { transform: scale(0.95); }
+  .rules-btn:disabled { opacity: 0.22; cursor: default; }
+
+  #rules-prev {
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.65);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  #rules-prev:hover:not(:disabled) { background: rgba(255,255,255,0.18); }
+
+  #rules-next {
+    background: var(--moss);
+    color: white;
+    min-width: 120px;
+    text-align: center;
+  }
+  #rules-next:hover { background: var(--moss-light); }
+  #rules-next.enter {
+    background: var(--terracotta);
+    animation: pglow-red 1.6s ease-in-out infinite;
+  }
+  #rules-next.enter:hover { background: #c04a3e; animation: none; }
+  @keyframes pglow-red {
+    0%,100% { box-shadow: 0 0 0 0 rgba(184,58,46,0.7); }
+    50%      { box-shadow: 0 0 0 10px rgba(184,58,46,0); }
+  }
+
+  .rules-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px; padding: 2px 8px;
+    font-size: 0.71rem; font-weight: 700;
+    color: white; vertical-align: middle;
+  }
+  .rules-chip.gold  { background: rgba(232,196,0,0.22); color: #e8c400; }
+  .rules-chip.green { background: rgba(76,175,80,0.22); color: #7db87a; }
+  .rules-chip.pink  { background: rgba(232,69,138,0.22); color: #e8458a; }
+  .rules-chip.teal  { background: rgba(0,168,152,0.22); color: #00a898; }
+  .rules-chip.red   { background: rgba(184,58,46,0.25); color: #d06055; }
+
+  @keyframes firefly {
+    0%   { opacity:0; transform: translate(0,0) scale(0.8); }
+    30%  { opacity:0.9; }
+    70%  { opacity:0.5; }
+    100% { opacity:0; transform: translate(var(--fx), var(--fy)) scale(1.3); }
+  }
+  .rules-firefly {
+    position: absolute;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #ffe066;
+    box-shadow: 0 0 7px 3px rgba(255,230,100,0.55);
+    pointer-events: none;
+    animation: firefly var(--fd,4s) ease-in-out var(--fd2,0s) infinite;
+  }
+  @keyframes sway {
+    0%,100% { transform: rotate(-4deg) scaleX(1); }
+    50%      { transform: rotate(4deg) scaleX(0.97); }
+  }
+
+  /* ══════════════════════════════════════════════════════
      WALDMAGIE — Partikel & Animationen
   ══════════════════════════════════════════════════════ */
 
@@ -1759,18 +2110,173 @@
 <div id="cover-splash">
   <div id="cover-inner">
     <img src="cover.png" alt="Omamori – Die Gunst der Geister">
-  <div id="cover-tagline">2 Spieler · 10+ · 45–60 Min</div>
+  <div id="cover-tagline">2–4 Spielende · 45 Min · ab 9 J.</div>
   <button id="cover-start-btn">🐾 Abenteuer beginnen</button>
   </div>
 </div>
 
+<!-- Rules Overlay (3-page tutorial) -->
+<div id="rules-overlay">
+
+  <!-- Decorative background: floating fireflies + tree silhouettes -->
+  <div class="rules-bg" id="rules-bg-layer"></div>
+
+  <div class="rules-inner">
+
+    <!-- Header -->
+    <div class="rules-header">
+      <span style="font-size:1rem;opacity:0.5">🍃</span>
+      <div class="rules-header-title">Spielanleitung</div>
+      <span style="font-size:1rem;opacity:0.5">🍃</span>
+    </div>
+
+    <!-- Pages -->
+    <div class="rules-pages">
+
+      <!-- ═══ PAGE 1: Das Spiel ═══ -->
+      <div class="rules-page" id="rules-page-1">
+        <div class="rules-page-title">Willkommen im Wald 🌲</div>
+        <div class="rules-page-sub">für 2–4 Spielende · 45 Min · ab 9 Jahren</div>
+
+        <!-- Tile showcase -->
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#7db87a">
+            <span>🔺</span> Dreieck-Plättchen
+          </div>
+          <div class="rules-tiles-row" id="rules-tiles-demo"></div>
+          <p>Jedes Plättchen ist ein Dreieck mit einem <strong style="color:#e8c400">Zahlenwert (0–4)</strong> und farbigen Markierungen an den Kanten. Beim Anlegen müssen <strong style="color:white">Kanten übereinstimmen</strong>: eine markierte Kante trifft immer eine markierte, eine freie trifft eine freie.</p>
+        </div>
+
+        <!-- Dice showcase -->
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#e8c400">
+            <span>🎲</span> Die vier Geister-Würfel
+          </div>
+          <div class="rules-dice-group" id="rules-dice-demo"></div>
+          <p style="margin-top:8px">Jede Geister-Farbe hat <strong style="color:white">5 Würfel + 1 weißen Joker</strong> (gültig für jede Farbe). Niedrigste Würfel zuerst — baue sie der Reihe nach ab.</p>
+        </div>
+
+        <!-- Zug -->
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#5a9470">
+            <span>▶️</span> Ein Zug
+          </div>
+          <p><span class="rules-chip green">Teil 1</span> Plättchen aus der Hand anlegen — Kanten müssen passen. Die Zahl auf dem Plättchen ist für dein <span class="rules-chip gold">📖 Kräuterbuch</span> wichtig.</p>
+          <p style="margin-top:6px"><span class="rules-chip green">Teil 2</span> Wenn eine Baustelle <span style="color:#8b1a2e;font-weight:700">⛩️</span> entsteht: Würfel wählen und in den Wertungsblock eintragen. Oder lieber <span class="rules-chip gold">+1 🪙 Münze</span> nehmen.</p>
+        </div>
+      </div>
+
+      <!-- ═══ PAGE 2: Geister & Wertungsblock ═══ -->
+      <div class="rules-page" id="rules-page-2">
+        <div class="rules-page-title">Die vier Geister ✨</div>
+        <div class="rules-page-sub">Wer die meisten Schreine baut, gewinnt die Gunst</div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#c04060"><span>⛩️</span> Baugeist</div>
+          <p>Trage Würfelwerte ein. Wer als Erster <strong style="color:white">3 Einträge</strong> hat, bekommt die Katze 😸 und erhält am Spielende alle <strong style="color:#c04060">verbleibenden Würfel-Werte</strong> als Bonus.</p>
+          <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+            <div style="display:flex;align-items:center;gap:6px;background:rgba(139,26,46,0.2);border-radius:8px;padding:5px 10px;border:1px solid rgba(139,26,46,0.3)">
+              <div class="rules-die" style="background:#8b1a2e">4</div>
+              <div class="rules-die" style="background:#8b1a2e">3</div>
+              <div class="rules-die" style="background:#8b1a2e">1</div>
+              <span style="font-size:0.7rem;color:rgba(255,255,255,0.5)">→ 😸 Bonus!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#e8c400"><span>🍄</span> Glückspilz-Kräuterbuch</div>
+          <p>Kreuze im 5×5-Raster. Schließe eine <strong style="color:white">Zeile</strong> ab → <span class="rules-chip gold">🌸 Münz-Bonus</span>. Schließe eine <strong style="color:white">Spalte</strong> ab → weiterer <span class="rules-chip gold">🪙 Münz-Bonus</span>.</p>
+          <div style="margin-top:8px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;max-width:160px;margin-left:auto;margin-right:auto" id="rules-bingo-demo"></div>
+        </div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#00a898"><span>💧</span> Quellgeist</div>
+          <p>Wie der Baugeist — eigene Würfelreihe. Auch hier gewinnt Mehrheit die Katze und den <span class="rules-chip teal">Restwürfel-Bonus</span>.</p>
+        </div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#e8458a"><span>🌸</span> Nimmersatter Geist</div>
+          <p>Fülle <strong style="color:white">15 Kreise</strong>. Wer zuerst alle 15 hat bekommt <span class="rules-chip pink">+13 Punkte</span>. Sonst: wer am Ende mehr hat gewinnt den Bonus. Jeder Kreis zählt auch +1 Punkt.</p>
+        </div>
+      </div>
+
+      <!-- ═══ PAGE 3: Spielende & Einladung ═══ -->
+      <div class="rules-page" id="rules-page-3">
+        <div class="rules-page-title">Gunst der Geister 🏆</div>
+        <div class="rules-page-sub">Wer am Ende die meisten Punkte hat, gewinnt</div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#f5e500"><span>📊</span> Endabrechnung</div>
+          <div class="rules-score-row">
+            <div class="rules-score-icon">⛩️</div>
+            <div class="rules-score-text">
+              <div class="rules-score-name">Schrein-Gunst</div>
+              <div class="rules-score-desc">Summe aller platzierten Plättchen-Werte + Katzen-Bonus der Würfel-Reste</div>
+            </div>
+          </div>
+          <div class="rules-score-row">
+            <div class="rules-score-icon">📖</div>
+            <div class="rules-score-text">
+              <div class="rules-score-name">Kräuterbuch</div>
+              <div class="rules-score-desc">Münz-Boni aus abgeschlossenen Zeilen &amp; Spalten im Bingo-Raster</div>
+            </div>
+          </div>
+          <div class="rules-score-row">
+            <div class="rules-score-icon">😸</div>
+            <div class="rules-score-text">
+              <div class="rules-score-name">Nimmersatter Geist</div>
+              <div class="rules-score-desc">Anzahl gefüllter Kreise + eventuell +13 für den Renn-Bonus</div>
+            </div>
+          </div>
+          <div class="rules-score-row">
+            <div class="rules-score-icon">🪙</div>
+            <div class="rules-score-text">
+              <div class="rules-score-name">Goldmünzen</div>
+              <div class="rules-score-desc">Jede gesammelte Münze = 1 Punkt</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rules-card">
+          <div class="rules-card-title" style="color:#e8c400"><span>⚡</span> Spielende</div>
+          <p>Das Spiel endet, wenn <strong style="color:white">eine komplette Würfel-Farbreihe</strong> verbraucht ist — oder wenn ein Reisender kein Plättchen mehr hat und der Stapel leer ist.</p>
+        </div>
+
+        <!-- Atmospheric invite -->
+        <div style="text-align:center;margin-top:12px;padding:18px 12px;background:linear-gradient(135deg,rgba(61,107,79,0.3),rgba(30,61,42,0.5));border-radius:16px;border:1px solid rgba(90,148,112,0.25)">
+          <div style="font-size:2rem;margin-bottom:8px">🌲🦊🍄</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.05rem;color:white;line-height:1.5;margin-bottom:6px">
+            Die Geister warten.<br>Der Wald flüstert deinen Namen.
+          </div>
+          <div style="font-size:0.75rem;color:rgba(255,255,255,0.45);letter-spacing:0.08em">
+            Reisender 1 beginnt — Reisender 2 bekommt eine Startmünze 🪙
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /.rules-pages -->
+
+    <!-- Navigation -->
+    <div class="rules-nav">
+      <button class="rules-btn" id="rules-prev" disabled>← Zurück</button>
+      <div class="rules-dots">
+        <div class="rules-dot active"></div>
+        <div class="rules-dot"></div>
+        <div class="rules-dot"></div>
+      </div>
+      <button class="rules-btn" id="rules-next">Weiter →</button>
+    </div>
+
+  </div><!-- /.rules-inner -->
+</div><!-- /#rules-overlay -->
+
 <div id="app">
 
   <header>
-    <h1>🐾 Omamori</h1>
-    <div class="game-meta">
-      <div class="game-subtitle">Die Gunst der Geister</div>
-      <div class="game-author">von Johannes Zirm · v1.2</div>
+    <div class="header-title-group">
+      <h1>Omamori</h1>
+      <button class="btn-info" id="btn-info" aria-label="Info"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="4.2" r="1.2" fill="#e8c400"/><rect x="6" y="6.5" width="2" height="5" rx="1" fill="#e8c400"/></svg></button>
     </div>
     <div class="scores">
       <div class="score-chip active" id="chip0">
@@ -1789,6 +2295,50 @@
       </div>
     </div>
   </header>
+
+  <!-- Info Overlay (content to be filled in next iteration) -->
+  <div id="info-overlay">
+    <div id="info-panel">
+      <div id="info-panel-title">Omamori – Die Gunst der Geister</div>
+      <div id="info-panel-byline">Spielkonzept von Johannes Zirm</div>
+
+      <div class="info-meta-row">
+        <div class="info-meta-chip"><span>👥</span> 2–4 Spielende</div>
+        <div class="info-meta-chip"><span>⏱</span> 45 Min</div>
+        <div class="info-meta-chip"><span>🌿</span> ab 9 J.</div>
+      </div>
+
+      <div class="info-oneliner">
+        Lege Dreiecke, wecke Geister und sammle ihre Gunst – wer den Wald am klügsten durchquert, gewinnt.
+      </div>
+
+      <div class="info-material-title">Spielmaterial</div>
+      <div class="info-material-grid">
+        <div class="info-material-item">
+          <div class="info-material-icon">🔺</div>
+          <div class="info-material-text">36 Plättchen</div>
+        </div>
+        <div class="info-material-item">
+          <div class="info-material-icon">🎲</div>
+          <div class="info-material-text">24 Würfel</div>
+        </div>
+        <div class="info-material-item">
+          <div class="info-material-icon">😸</div>
+          <div class="info-material-text">4 Katzen</div>
+        </div>
+        <div class="info-material-item">
+          <div class="info-material-icon">📊</div>
+          <div class="info-material-text">Wertungsblock</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;border-radius:12px;overflow:hidden;aspect-ratio:3/2;background:rgba(0,0,0,0.25);">
+        <img src="material.png" alt="Spielmaterial" style="width:100%;height:100%;object-fit:cover;display:block;">
+      </div>
+
+      <div id="info-panel-close-hint">Tippe irgendwo zum Schließen</div>
+    </div>
+  </div>
 
   <div id="hint-bar">Erkunde den Wald — ziehe ein Plättchen auf den Waldpfad</div>
 
@@ -4474,10 +5024,20 @@ function renderScoreBlockCoinAdjust(playerIdx, baseValue, isDouble, colorIdx){
 }
 
 
+// ── INFO OVERLAY ─────────────────────────────────────────────────
+document.getElementById('btn-info').addEventListener('click', e => {
+  e.stopPropagation();
+  document.getElementById('info-overlay').classList.add('show');
+});
+document.getElementById('info-overlay').addEventListener('click', () => {
+  document.getElementById('info-overlay').classList.remove('show');
+});
+document.getElementById('info-panel').addEventListener('click', e => e.stopPropagation());
+
 // ── COVER SPLASH ─────────────────────────────────────────────────
-document.getElementById('cover-start-btn').addEventListener('click', dismissCover);
+document.getElementById('cover-start-btn').addEventListener('click', openRules);
 document.getElementById('cover-splash').addEventListener('click', function(e){
-  if(e.target === this) dismissCover();
+  if(e.target === this) openRules();
 });
 function dismissCover(){
   const splash = document.getElementById('cover-splash');
@@ -4485,6 +5045,65 @@ function dismissCover(){
   playSound('score');
   setTimeout(()=>{ splash.style.display='none'; }, 850);
 }
+function openRules(){
+  const splash = document.getElementById('cover-splash');
+  splash.classList.add('fade-out');
+  setTimeout(()=>{
+    splash.style.display='none';
+    const rules = document.getElementById('rules-overlay');
+    rules.classList.add('show');
+    showRulesPage(1);
+  }, 600);
+}
+function dismissRules(){
+  const rules = document.getElementById('rules-overlay');
+  rules.classList.add('fade-out');
+  playSound('score');
+  setTimeout(()=>{
+    rules.style.display='none';
+    document.getElementById('info-overlay').classList.add('show');
+  }, 500);
+}
+
+// ── RULES OVERLAY LOGIC ───────────────────────────────────────────
+let _rulesPage = 1;
+const RULES_TOTAL = 3;
+
+function showRulesPage(n){
+  _rulesPage = n;
+  for(let i=1;i<=RULES_TOTAL;i++){
+    const pg = document.getElementById(`rules-page-${i}`);
+    if(!pg) continue;
+    pg.classList.toggle('active', i===n);
+  }
+  // dots
+  document.querySelectorAll('.rules-dot').forEach((d,i)=>{
+    d.classList.toggle('active', i+1===n);
+  });
+  // buttons
+  const prev = document.getElementById('rules-prev');
+  const next = document.getElementById('rules-next');
+  if(prev) prev.disabled = (n===1);
+  if(next){
+    if(n===RULES_TOTAL){
+      next.textContent = '🌲 Den Wald betreten';
+      next.classList.add('enter');
+    } else {
+      next.textContent = 'Weiter →';
+      next.classList.remove('enter');
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const prev = document.getElementById('rules-prev');
+  const next = document.getElementById('rules-next');
+  if(prev) prev.addEventListener('click', ()=>{ if(_rulesPage>1) showRulesPage(_rulesPage-1); });
+  if(next) next.addEventListener('click', ()=>{
+    if(_rulesPage < RULES_TOTAL){ showRulesPage(_rulesPage+1); }
+    else { dismissRules(); }
+  });
+});
 
 
 // ════════════════════════════════════════════════════════════════
@@ -5239,6 +5858,160 @@ function showToast(msg, type=''){
   clearTimeout(_tt);
   _tt=setTimeout(()=>{ el.classList.remove('show'); }, 2600);
 }
+
+// ═══════════════════════════════════════════════
+//  RULES OVERLAY — RENDER DEMOS
+// ═══════════════════════════════════════════════
+(function initRulesDemo(){
+
+  // ── Fireflies ─────────────────────────────────
+  const bg = document.getElementById('rules-bg-layer');
+  if(bg){
+    // Tree silhouettes
+    const treeSvg = `<svg width="80" height="160" viewBox="0 0 80 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="40,0 0,90 80,90" fill="#1e3d2a"/>
+      <polygon points="40,30 5,110 75,110" fill="#1e3d2a"/>
+      <polygon points="40,60 10,135 70,135" fill="#1e3d2a"/>
+      <rect x="33" y="135" width="14" height="25" fill="#162a1c"/>
+    </svg>`;
+    const positions = [
+      {left:'0%',scale:1.4,opacity:0.18},
+      {left:'12%',scale:0.9,opacity:0.12},
+      {left:'72%',scale:1.2,opacity:0.15},
+      {left:'88%',scale:1.0,opacity:0.13},
+    ];
+    positions.forEach(p=>{
+      const wrap = document.createElement('div');
+      wrap.style.cssText = `position:absolute;bottom:0;left:${p.left};transform:scaleX(${p.scale});transform-origin:bottom center;opacity:${p.opacity};`;
+      wrap.innerHTML = treeSvg;
+      bg.appendChild(wrap);
+    });
+
+    // Fireflies
+    for(let i=0;i<14;i++){
+      const ff = document.createElement('div');
+      ff.className = 'rules-firefly';
+      const x = Math.random()*100, y = Math.random()*100;
+      const dx = (Math.random()-0.5)*60, dy = -(30+Math.random()*60);
+      ff.style.cssText = `left:${x}%;top:${y}%;--fx:${dx}px;--fy:${dy}px;--fd:${3+Math.random()*4}s;--fd2:${Math.random()*5}s;`;
+      bg.appendChild(ff);
+    }
+  }
+
+  // ── Tile SVG builder (standalone, no board state) ─────────────
+  function makeTileSVG(size, value, edges, colors, isUp){
+    // edges: [bool,bool,bool], colors: [str|null, ...]
+    const S = size, H = S * Math.sqrt(3)/2;
+    const pad = 4;
+    const w = S + pad*2, h = H + pad*2;
+    const pts = isUp
+      ? [[w/2, pad], [pad, h-pad], [w-pad, h-pad]]
+      : [[w/2, h-pad], [pad, pad], [w-pad, pad]];
+    const mids = [
+      [(pts[1][0]+pts[2][0])/2, (pts[1][1]+pts[2][1])/2],
+      [(pts[0][0]+pts[1][0])/2, (pts[0][1]+pts[1][1])/2],
+      [(pts[0][0]+pts[2][0])/2, (pts[0][1]+pts[2][1])/2],
+    ];
+    const cx = (pts[0][0]+pts[1][0]+pts[2][0])/3;
+    const cy = (pts[0][1]+pts[1][1]+pts[2][1])/3;
+    const pointsStr = pts.map(p=>p.join(',')).join(' ');
+
+    let svg = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+    // Fill
+    svg += `<polygon points="${pointsStr}" fill="#5a9470" stroke="#3d6b4f" stroke-width="1.5"/>`;
+    // Edge markers
+    edges.forEach((marked, ei)=>{
+      if(!marked) return;
+      const col = colors[ei] || '#e8c400';
+      const [mx,my] = mids[ei];
+      // direction toward centroid
+      const dx = cx-mx, dy = cy-my;
+      const len = Math.sqrt(dx*dx+dy*dy)||1;
+      const nx = dx/len, ny = dy/len;
+      // draw a colored oval/pill along the edge
+      const ex = pts[ ei===0?1:(ei===1?0:0) ][0];
+      const ey = pts[ ei===0?1:(ei===1?0:0) ][1];
+      const ex2 = pts[ ei===0?2:(ei===1?1:2) ][0];
+      const ey2 = pts[ ei===0?2:(ei===1?1:2) ][1];
+      svg += `<line x1="${ex}" y1="${ey}" x2="${ex2}" y2="${ey2}" stroke="${col}" stroke-width="4.5" stroke-linecap="round" opacity="0.92"/>`;
+      // dot at midpoint
+      svg += `<circle cx="${mx + nx*3}" cy="${my + ny*3}" r="4" fill="${col}" opacity="0.85"/>`;
+    });
+    // Value text
+    if(value > 0){
+      svg += `<text x="${cx}" y="${cy+4}" text-anchor="middle" dominant-baseline="middle" font-family="Playfair Display,serif" font-size="${S*0.32}" font-weight="700" fill="white" opacity="0.9">${value}</text>`;
+    }
+    svg += `</svg>`;
+    return svg;
+  }
+
+  // ── Render example tiles ───────────────────────────────────────
+  const tileEl = document.getElementById('rules-tiles-demo');
+  if(tileEl){
+    const examples = [
+      { value:3, edges:[true,false,true],  colors:['#8b1a2e',null,'#e8c400'],  up:true,  label:'Kanten: Rot + Gold' },
+      { value:1, edges:[false,true,false], colors:[null,'#00a898',null],        up:false, label:'Kante: Quellgeist' },
+      { value:4, edges:[true,true,false],  colors:['#e8458a','#e8c400',null],  up:true,  label:'Wert 4 — viele Punkte' },
+      { value:0, edges:[false,false,false],colors:[null,null,null],             up:false, label:'Keine Markierung' },
+    ];
+    examples.forEach(ex=>{
+      const wrap = document.createElement('div');
+      wrap.className = 'rules-tile-wrap';
+      wrap.innerHTML = `${makeTileSVG(52, ex.value, ex.edges, ex.colors, ex.up)}<div class="rules-tile-label">${ex.label}</div>`;
+      tileEl.appendChild(wrap);
+    });
+  }
+
+  // ── Render dice rows ──────────────────────────────────────────
+  const diceEl = document.getElementById('rules-dice-demo');
+  if(diceEl){
+    const rows = [
+      { name:'⛩️ Baugeist',    color:'#8b1a2e', vals:[1,2,3,4,5] },
+      { name:'🍄 Glückspilz',  color:'#b89800', vals:[2,3,4,5,6] },
+      { name:'💧 Quellgeist',  color:'#008a7c', vals:[1,3,4,5,6] },
+      { name:'🌸 Nimmersatter',color:'#b0306a', vals:[2,3,3,5,6] },
+    ];
+    rows.forEach((row,ri)=>{
+      const rowEl = document.createElement('div');
+      rowEl.className = 'rules-dice-row';
+      const lbl = document.createElement('div');
+      lbl.className = 'rules-dice-row-label';
+      lbl.style.color = row.color;
+      lbl.textContent = row.name;
+      rowEl.appendChild(lbl);
+      row.vals.forEach(v=>{
+        const d = document.createElement('div');
+        d.className = 'rules-die';
+        d.style.background = row.color;
+        d.textContent = v;
+        rowEl.appendChild(d);
+      });
+      // Joker die
+      const jd = document.createElement('div');
+      jd.className = 'rules-die white-die';
+      jd.textContent = '★';
+      rowEl.appendChild(jd);
+      diceEl.appendChild(rowEl);
+    });
+  }
+
+  // ── Bingo mini demo ────────────────────────────────────────────
+  const bingoEl = document.getElementById('rules-bingo-demo');
+  if(bingoEl){
+    const crossed = [0,1,5,6,10,11,15]; // indices to cross
+    for(let i=0;i<25;i++){
+      const c = document.createElement('div');
+      const isCrossed = crossed.includes(i);
+      c.style.cssText = `height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;
+        background:${isCrossed?'var(--moss)':'rgba(255,255,255,0.1)'};
+        border:1px solid ${isCrossed?'var(--moss-dark)':'rgba(255,255,255,0.08)'};
+        color:${isCrossed?'white':'rgba(255,255,255,0.35)'};`;
+      c.textContent = isCrossed ? '✕' : (Math.floor(Math.random()*4)+1);
+      bingoEl.appendChild(c);
+    }
+  }
+
+})();
 
 // ═══════════════════════════════════════════════
 //  INIT
