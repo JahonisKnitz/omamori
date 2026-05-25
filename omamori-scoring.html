@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Omamori – Wertung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:        #f5ede0;
+    --moss:         #3d6b4f;
+    --moss-light:   #5a9470;
+    --moss-dark:    #1e3d2a;
+    --sand:         #d4b896;
+    --terracotta:   #b83a2e;
+    --gold:         #d4a800;
+    --gold-dark:    #9a7800;
+    --pink:         #e8458a;
+    --teal:         #00a898;
+    --p1:  #c0392b;
+    --p2:  #2980b9;
+    --p3:  #27ae60;
+    --p4:  #8e44ad;
+    --shadow: rgba(20,50,30,0.25);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html, body {
+    height:100%; min-height:100vh;
+    background: var(--moss-dark);
+    font-family: 'Lato', sans-serif;
+    overflow-x: hidden;
+  }
+
+  #app {
+    max-width: 520px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #f5f0e4;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--moss-dark);
+    padding: 14px 16px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 2px solid rgba(90,148,112,0.3);
+  }
+  .header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem; color: white;
+    letter-spacing: 0.04em; line-height: 1.1;
+  }
+  .header-left p {
+    font-size: 0.65rem; color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-top: 2px;
+  }
+  .header-right {
+    display: flex; gap: 8px; align-items: center;
+  }
+  .btn-setup {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.75);
+    border-radius: 8px; padding: 5px 11px;
+    font-family: 'Lato', sans-serif; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+    letter-spacing: 0.04em;
+  }
+  .btn-setup:hover { background: rgba(255,255,255,0.2); }
+
+  /* ── TABS ── */
+  #tabs-bar {
+    background: var(--moss-dark);
+    display: flex;
+    padding: 0 12px 0;
+    gap: 4px;
+    border-bottom: 1px solid rgba(90,148,112,0.25);
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 8px 6px 10px;
+    border: none; border-radius: 0;
+    background: transparent;
+    color: rgba(255,255,255,0.45);
+    font-family: 'Lato', sans-serif; font-size: 0.75rem; font-weight: 700;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+    letter-spacing: 0.03em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .tab-btn .tab-score {
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.05rem; color: rgba(255,255,255,0.35);
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .tab-btn::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 3px; border-radius: 3px 3px 0 0;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .tab-btn.active { color: white; }
+  .tab-btn.active .tab-score { color: white; }
+  .tab-btn.active::after { background: var(--gold); }
+
+  /* Spieler-Farbstreifen */
+  .tab-btn[data-p="0"].active::after { background: var(--p1); }
+  .tab-btn[data-p="1"].active::after { background: var(--p2); }
+  .tab-btn[data-p="2"].active::after { background: var(--p3); }
+  .tab-btn[data-p="3"].active::after { background: var(--p4); }
+
+  /* ── CONTENT ── */
+  #content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 14px 120px;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 10px; margin-top: 20px;
+  }
+  .section-header:first-child { margin-top: 0; }
+  .section-icon {
+    font-size: 1.1rem; line-height: 1; flex-shrink: 0;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.88rem; color: var(--moss-dark); font-weight: 700;
+    flex: 1;
+  }
+  .section-total {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem; font-weight: 700; color: var(--moss);
+  }
+
+  .section-divider {
+    height: 1px; background: rgba(61,107,79,0.15);
+    margin: 18px 0 14px;
+  }
+
+  /* ── BAU-WERTUNG BLOCK (Teil 1) ── */
+  .bau-block {
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(61,107,79,0.1);
+  }
+
+  .bau-col-labels {
+    display: flex; gap: 4px;
+    padding-left: 28px; padding-right: 44px;
+    margin-bottom: 4px;
+  }
+  .bau-col-label {
+    flex: 1; text-align: center;
+    font-size: 0.6rem; font-weight: 700; color: #aaa;
+    letter-spacing: 0.05em;
+  }
+
+  .bau-row {
+    display: flex; align-items: center; gap: 4px;
+    margin-bottom: 5px;
+  }
+  .bau-color-dot {
+    width: 22px; height: 22px; border-radius: 5px;
+    flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .bau-cells { display: flex; gap: 4px; flex: 1; }
+  .bau-cell {
+    flex: 1; height: 36px; border-radius: 7px;
+    border: 2px solid #e0dbd2;
+    background: #fafaf8;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; font-weight: 700; color: var(--moss-dark);
+    cursor: pointer; transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    position: relative; user-select: none;
+    -webkit-user-select: none;
+  }
+  .bau-cell:active { transform: scale(0.94); }
+  .bau-cell.has-value {
+    background: white; border-color: rgba(61,107,79,0.3);
+  }
+  .bau-cell.editing {
+    border-color: var(--moss); background: rgba(90,148,112,0.1);
+    animation: cell-pulse 1.2s ease-in-out infinite;
+  }
+  @keyframes cell-pulse {
+    0%,100% { border-color: var(--moss-light); }
+    50% { border-color: var(--moss); background: rgba(90,148,112,0.15); }
+  }
+  .bau-cell input {
+    width: 100%; height: 100%; border: none; background: transparent;
+    text-align: center; font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; font-weight: 700; color: var(--moss-dark);
+    outline: none; padding: 0;
+  }
+  /* Chrome number input arrows ausblenden */
+  .bau-cell input::-webkit-outer-spin-button,
+  .bau-cell input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .bau-cell input[type=number] { -moz-appearance: textfield; }
+
+  .bau-row-sum {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid #e0dbd2; background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 0.78rem; font-weight: 700;
+    color: var(--moss-dark); flex-shrink: 0;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .bau-row-sum.has-value {
+    border-color: var(--moss); background: rgba(90,148,112,0.1);
+    color: var(--moss);
+  }
+  .bau-row-sum.bonus-done {
+    border-color: var(--gold); background: rgba(212,168,0,0.15);
+    color: var(--gold-dark);
+  }
+
+  /* Spalten-Bonus Chips */
+  .bau-col-bonus-row {
+    display: flex; gap: 4px; padding-left: 28px; padding-right: 44px;
+    margin-top: 6px;
+  }
+  .bau-col-bonus-chip {
+    flex: 1; text-align: center; font-size: 0.6rem; font-weight: 700;
+    padding: 3px 2px; border-radius: 4px;
+    background: rgba(0,0,0,0.04); color: #aaa;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+    user-select: none;
+  }
+  .bau-col-bonus-chip:active { transform: scale(0.95); }
+  .bau-col-bonus-chip.active {
+    background: rgba(212,168,0,0.18); color: var(--gold-dark);
+  }
+
+  /* Katzen */
+  .bau-cat-row {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px;
+  }
+  .cat-chip {
+    display: flex; align-items: center; gap: 5px;
+    border-radius: 20px; padding: 5px 10px;
+    font-size: 0.74rem; font-weight: 700;
+    border: 2px solid transparent; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+    background: rgba(0,0,0,0.04); color: #888;
+  }
+  .cat-chip:active { transform: scale(0.95); }
+  .cat-chip.owned {
+    color: white;
+  }
+  .cat-chip .cat-icon { font-size: 0.85rem; }
+
+  /* ── BINGO ── */
+  .bingo-block {
+    background: white;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(61,107,79,0.1);
+  }
+  .bingo-col-bonus-row {
+    display: flex; gap: 4px; padding-left: 6px;
+    margin-bottom: 4px;
+  }
+  .bingo-col-bonus {
+    flex: 1; text-align: center;
+    font-size: 0.6rem; font-weight: 700; color: #aaa;
+    padding: 2px 0; border-radius: 4px; cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .bingo-col-bonus.done { color: var(--gold-dark); background: rgba(212,168,0,0.1); }
+  .bingo-spacer { width: 44px; flex-shrink: 0; }
+
+  .bingo-grid { display: flex; flex-direction: column; gap: 4px; }
+  .bingo-row-el { display: flex; align-items: center; gap: 4px; }
+  .bingo-cell {
+    flex: 1; height: 36px; border-radius: 7px;
+    border: 1.5px solid #e0dbd2; background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif; font-size: 0.8rem; font-weight: 700;
+    color: var(--moss-dark);
+    cursor: pointer; transition: all 0.15s;
+    user-select: none; -webkit-user-select: none;
+    position: relative;
+  }
+  .bingo-cell.empty {
+    background: #f0ede6; border-color: transparent;
+    cursor: default; color: transparent;
+  }
+  .bingo-cell.crossed {
+    background: var(--moss); border-color: var(--moss-dark); color: white;
+  }
+  .bingo-cell.crossed::after { content: '✕'; font-size: 1rem; font-weight: 900; }
+  .bingo-cell:not(.empty):not(.crossed):active { transform: scale(0.92); }
+
+  .bingo-row-bonus-el {
+    width: 44px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    cursor: pointer; user-select: none;
+  }
+  .bingo-row-bonus-el .flower { font-size: 0.95rem; line-height: 1; }
+  .bingo-row-bonus-el .pts { font-size: 0.6rem; font-weight: 700; color: var(--pink); line-height: 1; }
+  .bingo-row-bonus-el.done .pts { color: #4caf50; }
+
+  /* ── PINK CIRCLES ── */
+  .pink-block {
+    background: white; border-radius: 14px;
+    padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(61,107,79,0.1);
+  }
+  .pink-circles-grid {
+    display: grid; grid-template-columns: repeat(5,1fr);
+    gap: 6px;
+  }
+  .pink-circle {
+    aspect-ratio: 1; border-radius: 50%;
+    border: 2px solid #e0dbd2; background: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.95rem; cursor: pointer;
+    transition: all 0.15s; user-select: none;
+  }
+  .pink-circle:active { transform: scale(0.88); }
+  .pink-circle.filled {
+    background: var(--pink); border-color: #c03875; color: white;
+    font-weight: 900;
+  }
+  .pink-info {
+    text-align: center; font-size: 0.73rem; color: #888;
+    margin-top: 8px; font-weight: 700;
+  }
+  .pink-info span { color: var(--pink); }
+
+  /* Rennen-Bonus */
+  .race-bonus-row {
+    display: flex; gap: 8px; margin-top: 10px;
+  }
+  .race-btn {
+    flex: 1; padding: 8px;
+    border-radius: 10px; border: 2px solid #e0dbd2;
+    background: white; font-size: 0.74rem; font-weight: 700;
+    color: #aaa; cursor: pointer; text-align: center;
+    transition: all 0.15s;
+  }
+  .race-btn.active {
+    border-color: var(--pink); background: rgba(232,69,138,0.1); color: var(--pink);
+  }
+  .race-btn:active { transform: scale(0.96); }
+
+  /* ── MÜNZEN ── */
+  .coins-block {
+    background: white; border-radius: 14px;
+    padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(61,107,79,0.1);
+  }
+  .coins-row {
+    display: flex; align-items: center; gap: 12px;
+  }
+  .coins-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.4rem; font-weight: 700; color: var(--gold-dark);
+    line-height: 1;
+  }
+  .coins-controls {
+    display: flex; gap: 8px; flex: 1; justify-content: flex-end;
+  }
+  .coin-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 2px solid #e0dbd2; background: white;
+    font-size: 1.4rem; cursor: pointer; display: flex;
+    align-items: center; justify-content: center;
+    transition: all 0.15s; user-select: none; font-weight: 700;
+    color: #555;
+  }
+  .coin-btn:active { transform: scale(0.9); }
+  .coin-btn:hover { background: #f5f0e4; }
+  .coin-note {
+    font-size: 0.67rem; color: #aaa; margin-top: 6px; text-align: center;
+  }
+
+  /* ── TOTAL ANZEIGE ── */
+  .total-panel {
+    background: white; border-radius: 14px;
+    padding: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(61,107,79,0.1);
+  }
+  .total-rows { display: flex; flex-direction: column; gap: 6px; }
+  .total-row {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 0.8rem; color: #666;
+  }
+  .total-row.total-final {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; color: var(--moss-dark);
+    font-weight: 700; margin-top: 6px;
+    padding-top: 8px; border-top: 2px solid rgba(61,107,79,0.15);
+  }
+  .total-row .label { font-weight: 700; }
+  .total-row .val {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.95rem; font-weight: 700; color: var(--moss);
+  }
+  .total-row.total-final .val {
+    font-size: 1.5rem; color: var(--moss-dark);
+  }
+
+  /* ── BOTTOM BAR ── */
+  #bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, #f5f0e4 80%, transparent);
+    padding: 12px 14px 20px;
+    display: flex; gap: 10px;
+    max-width: 520px; margin: 0 auto;
+    left: 50%; transform: translateX(-50%);
+    width: 100%;
+  }
+  .btn-gameover {
+    flex: 1; padding: 13px;
+    background: var(--terracotta); color: white; border: none;
+    border-radius: 12px; font-family: 'Lato', sans-serif;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(184,58,46,0.35);
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: 0.03em;
+  }
+  .btn-gameover:active { transform: scale(0.97); }
+  .btn-gameover:hover { background: #a83025; }
+
+  /* ── GAMEOVER OVERLAY ── */
+  #gameover-overlay {
+    position: fixed; inset: 0; z-index: 9000;
+    background: rgba(10,22,12,0.75);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #gameover-overlay.show { opacity: 1; pointer-events: all; }
+  #gameover-panel {
+    background: linear-gradient(160deg, var(--moss) 0%, var(--moss-dark) 100%);
+    border-radius: 22px;
+    padding: 22px 20px 24px;
+    width: 90%; max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    transform: scale(0.88) translateY(20px);
+    transition: transform 0.35s cubic-bezier(.34,1.3,.64,1);
+    border: 1px solid rgba(90,148,112,0.3);
+    max-height: 90vh; overflow-y: auto;
+  }
+  #gameover-overlay.show #gameover-panel { transform: scale(1) translateY(0); }
+
+  .go-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem; color: white; text-align: center;
+    margin-bottom: 4px;
+  }
+  .go-subtitle {
+    font-size: 0.7rem; color: rgba(255,255,255,0.45);
+    text-align: center; letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .go-ranking {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .go-player-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 12px; padding: 10px 14px;
+    transition: background 0.2s;
+  }
+  .go-player-row.winner {
+    background: rgba(212,168,0,0.2);
+    border: 1px solid rgba(212,168,0,0.4);
+  }
+  .go-rank {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700; color: rgba(255,255,255,0.3);
+    width: 28px; text-align: center;
+    flex-shrink: 0;
+  }
+  .go-player-row.winner .go-rank { color: var(--gold); font-size: 1.6rem; }
+  .go-player-name {
+    flex: 1;
+    font-size: 0.88rem; font-weight: 700; color: white;
+  }
+  .go-player-score {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem; font-weight: 700; color: white;
+    line-height: 1;
+  }
+  .go-player-row.winner .go-player-score { color: var(--gold); }
+  .go-player-detail {
+    font-size: 0.62rem; color: rgba(255,255,255,0.4);
+    margin-top: 1px;
+  }
+  .go-tie-note {
+    font-size: 0.75rem; color: var(--gold); text-align: center;
+    margin-bottom: 12px; font-weight: 700;
+  }
+
+  .go-btn-row { display: flex; gap: 8px; }
+  .go-btn {
+    flex: 1; padding: 11px;
+    border: none; border-radius: 10px;
+    font-family: 'Lato', sans-serif; font-size: 0.85rem; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .go-btn:active { transform: scale(0.96); }
+  .go-btn.close { background: rgba(255,255,255,0.15); color: white; }
+  .go-btn.close:hover { background: rgba(255,255,255,0.25); }
+  .go-btn.reset { background: var(--terracotta); color: white; }
+  .go-btn.reset:hover { background: #a83025; }
+
+  /* ── SETUP OVERLAY ── */
+  #setup-overlay {
+    position: fixed; inset: 0; z-index: 9500;
+    background: rgba(10,22,12,0.8);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  #setup-overlay.show { opacity: 1; pointer-events: all; }
+  #setup-panel {
+    background: var(--cream);
+    border-radius: 20px; padding: 24px 20px 22px;
+    width: 90%; max-width: 380px;
+    box-shadow: 0 16px 50px rgba(0,0,0,0.5);
+    transform: scale(0.9) translateY(16px);
+    transition: transform 0.3s cubic-bezier(.34,1.3,.64,1);
+  }
+  #setup-overlay.show #setup-panel { transform: scale(1) translateY(0); }
+  #setup-panel h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; color: var(--moss-dark);
+    margin-bottom: 18px; text-align: center;
+  }
+  .setup-count-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 16px; margin-bottom: 22px;
+  }
+  .setup-count-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 2px solid rgba(61,107,79,0.3);
+    background: white; font-size: 1.5rem;
+    cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--moss-dark);
+    transition: all 0.15s;
+  }
+  .setup-count-btn:active { transform: scale(0.9); }
+  .setup-count-display {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem; font-weight: 700; color: var(--moss-dark);
+    min-width: 48px; text-align: center;
+  }
+  .setup-count-label {
+    text-align: center; font-size: 0.8rem; color: #888;
+    margin-bottom: 18px; letter-spacing: 0.04em;
+  }
+  .setup-names {
+    display: flex; flex-direction: column; gap: 10px;
+    margin-bottom: 20px;
+  }
+  .setup-name-row {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .setup-color-dot {
+    width: 12px; height: 12px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .setup-name-input {
+    flex: 1; border: 2px solid rgba(61,107,79,0.2);
+    border-radius: 8px; padding: 9px 12px;
+    font-family: 'Lato', sans-serif; font-size: 0.88rem;
+    color: var(--moss-dark); background: white; outline: none;
+    transition: border-color 0.15s;
+  }
+  .setup-name-input:focus { border-color: var(--moss); }
+  .setup-btn {
+    width: 100%; padding: 13px;
+    background: var(--moss); color: white; border: none;
+    border-radius: 12px; font-family: 'Lato', sans-serif;
+    font-size: 0.92rem; font-weight: 700; cursor: pointer;
+    transition: background 0.15s; letter-spacing: 0.03em;
+  }
+  .setup-btn:hover { background: var(--moss-dark); }
+  .setup-btn:active { transform: scale(0.97); }
+
+  /* ── NUMBER PAD OVERLAY ── */
+  #numpad-overlay {
+    position: fixed; inset: 0; z-index: 8000;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: flex-end; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  }
+  #numpad-overlay.show { opacity: 1; pointer-events: all; }
+  #numpad-panel {
+    background: #f5f0e4; width: 100%; max-width: 520px;
+    border-radius: 22px 22px 0 0;
+    padding: 16px 16px 30px;
+    transform: translateY(100%); transition: transform 0.28s cubic-bezier(.34,1.2,.64,1);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.2);
+  }
+  #numpad-overlay.show #numpad-panel { transform: translateY(0); }
+  .numpad-label {
+    font-size: 0.75rem; color: #888; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: center; margin-bottom: 8px;
+  }
+  .numpad-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem; font-weight: 700; color: var(--moss-dark);
+    text-align: center; min-height: 3.5rem;
+    margin-bottom: 12px;
+  }
+  .numpad-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-bottom: 10px;
+  }
+  .nk {
+    height: 52px; border-radius: 10px;
+    border: 2px solid rgba(61,107,79,0.15);
+    background: white; font-family: 'Playfair Display', serif;
+    font-size: 1.4rem; font-weight: 700; color: var(--moss-dark);
+    cursor: pointer; transition: all 0.12s;
+    display: flex; align-items: center; justify-content: center;
+    user-select: none;
+  }
+  .nk:active { background: rgba(90,148,112,0.15); transform: scale(0.94); }
+  .nk.del { font-size: 1rem; color: #888; }
+  .nk.confirm {
+    background: var(--moss); color: white; border-color: var(--moss-dark);
+    font-size: 1rem;
+    animation: npglow 1.4s ease-in-out infinite;
+  }
+  .nk.confirm:active { background: var(--moss-dark); animation: none; }
+  @keyframes npglow {
+    0%,100% { box-shadow: 0 0 0 0 rgba(61,107,79,0.5); }
+    50% { box-shadow: 0 0 0 7px rgba(61,107,79,0); }
+  }
+  .nk.cancel { background: rgba(0,0,0,0.05); color: #888; border-color: transparent; }
+
+  /* ── LEERES STATE ── */
+  .empty-hint {
+    text-align: center; color: #bbb; padding: 20px 0;
+    font-size: 0.82rem; font-style: italic;
+  }
+
+  /* ── ANIMATIONEN ── */
+  @keyframes pop-in {
+    0% { transform: scale(0.6); opacity: 0; }
+    70% { transform: scale(1.12); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .pop { animation: pop-in 0.3s cubic-bezier(.34,1.56,.64,1); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="header-left">
+      <h1>Omamori</h1>
+      <p>Gunst der Geister · Wertung</p>
+    </div>
+    <div class="header-right">
+      <button class="btn-setup" onclick="openSetup()">⚙ Spieler</button>
+    </div>
+  </header>
+
+  <div id="tabs-bar"></div>
+
+  <div id="content"></div>
+
+  <div id="bottom-bar">
+    <button class="btn-gameover" onclick="openGameOver()">🏆 Spielende auswerten</button>
+  </div>
+</div>
+
+<!-- NUM PAD -->
+<div id="numpad-overlay" onclick="closeNumpad()">
+  <div id="numpad-panel" onclick="event.stopPropagation()">
+    <div class="numpad-label" id="numpad-label">Wert eingeben</div>
+    <div class="numpad-value" id="numpad-value">—</div>
+    <div class="numpad-grid">
+      <div class="nk" onclick="numKey('7')">7</div>
+      <div class="nk" onclick="numKey('8')">8</div>
+      <div class="nk" onclick="numKey('9')">9</div>
+      <div class="nk" onclick="numKey('4')">4</div>
+      <div class="nk" onclick="numKey('5')">5</div>
+      <div class="nk" onclick="numKey('6')">6</div>
+      <div class="nk" onclick="numKey('1')">1</div>
+      <div class="nk" onclick="numKey('2')">2</div>
+      <div class="nk" onclick="numKey('3')">3</div>
+      <div class="nk del" onclick="numKey('del')">⌫</div>
+      <div class="nk" onclick="numKey('0')">0</div>
+      <div class="nk confirm" onclick="numConfirm()">✓ OK</div>
+    </div>
+  </div>
+</div>
+
+<!-- GAMEOVER OVERLAY -->
+<div id="gameover-overlay" onclick="closeGameOver()">
+  <div id="gameover-panel" onclick="event.stopPropagation()">
+    <div class="go-title">🎴 Spielende</div>
+    <div class="go-subtitle">Omamori – Die Gunst der Geister</div>
+    <div id="go-content"></div>
+    <div class="go-btn-row">
+      <button class="go-btn close" onclick="closeGameOver()">Zurück</button>
+      <button class="go-btn reset" onclick="resetAll()">↺ Neu starten</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP OVERLAY -->
+<div id="setup-overlay" onclick="closeSetup()">
+  <div id="setup-panel" onclick="event.stopPropagation()">
+    <h2>🌿 Spieler einrichten</h2>
+    <div class="setup-count-row">
+      <button class="setup-count-btn" onclick="changeCount(-1)">−</button>
+      <div class="setup-count-display" id="setup-count-display">2</div>
+      <button class="setup-count-btn" onclick="changeCount(1)">+</button>
+    </div>
+    <div class="setup-count-label">Spieler (2–4)</div>
+    <div class="setup-names" id="setup-names"></div>
+    <button class="setup-btn" onclick="applySetup()">✓ Speichern &amp; starten</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  KONSTANTEN
+// ══════════════════════════════════════════════════════
+const PLAYER_COLORS = ['var(--p1)','var(--p2)','var(--p3)','var(--p4)'];
+const PLAYER_COLORS_HEX = ['#c0392b','#2980b9','#27ae60','#8e44ad'];
+const EDGE_COLORS_HEX = ['#C0392B','#C8930A','#00A898','#E8458A'];
+const EDGE_NAMES = ['Baugeist','Glückspilz','Quellgeist','Nimmersatter'];
+
+// Bingo-Raster (5×5, null = leer)
+const BINGO_GRID = [
+  [{exact:1},{gt:2},{gt:3},{gt:4},null],
+  [{gt:1},{exact:2},{gt:3},{gt:4},{gt:5}],
+  [{gt:2},{gt:3},{exact:3},{gt:4},{gt:5}],
+  [null,{gt:3},{gt:4},{exact:4},{gt:5}],
+  [null,null,{gt:4},{gt:5},{exact:5}],
+];
+const BINGO_ROW_BONUS = [3,5,7,9,12];
+const BINGO_COL_BONUS = [1,2,3,4,5];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let state = loadState();
+
+function defaultState(playerNames) {
+  const n = playerNames.length;
+  return {
+    playerNames,
+    activeTab: 0,
+    // Bau-Wertung: [spieler][farbe(0-3)][feld(0-4)]
+    bauBlock: Array.from({length:n}, () =>
+      Array.from({length:4}, () => Array(5).fill(null))
+    ),
+    bauColBonus: Array.from({length:n}, () => Array(5).fill(false)),
+    catOwner: Array(4).fill(null), // pro Farbe: wer besitzt die Katze
+    // Bingo
+    bingoCrossed: Array.from({length:n}, () =>
+      Array.from({length:5}, () => Array(5).fill(false))
+    ),
+    bingoRowDone: Array.from({length:n}, () => Array(5).fill(false)),
+    bingoColDone: Array.from({length:n}, () => Array(5).fill(false)),
+    // Pink
+    pinkCircles: Array.from({length:n}, () => Array(15).fill(false)),
+    pinkFirstComplete: null,
+    // Münzen
+    coins: Array(n).fill(0),
+  };
+}
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('omamori_scoring_v2'));
+    if (s && s.playerNames) return s;
+  } catch(e) {}
+  return defaultState(['Reisender 1','Reisender 2']);
+}
+
+function saveState() {
+  try { localStorage.setItem('omamori_scoring_v2', JSON.stringify(state)); } catch(e){}
+}
+
+function n() { return state.playerNames.length; }
+
+// ══════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════
+function renderTabs() {
+  const bar = document.getElementById('tabs-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < n(); i++) {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === state.activeTab ? ' active' : '');
+    btn.dataset.p = i;
+    const total = calcTotal(i);
+    btn.innerHTML = `<span class="tab-score">${total}</span>${state.playerNames[i]}`;
+    btn.onclick = () => { state.activeTab = i; saveState(); renderAll(); };
+    bar.appendChild(btn);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  SCORING BERECHNUNG
+// ══════════════════════════════════════════════════════
+function calcBauTotal(p) {
+  let sum = 0;
+  for (let c = 0; c < 4; c++) {
+    for (let f = 0; f < 5; f++) {
+      sum += (state.bauBlock[p][c][f] || 0);
+    }
+  }
+  // Spalten-Boni
+  for (let f = 0; f < 5; f++) {
+    if (state.bauColBonus[p][f]) sum += 10;
+  }
+  return sum;
+}
+
+function calcBauRowSum(p, c) {
+  return state.bauBlock[p][c].reduce((s, v) => s + (v || 0), 0);
+}
+
+function calcBauColSum(p, f) {
+  return state.bauBlock[p].reduce((s, row) => s + (row[f] || 0), 0);
+}
+
+function getCatBonus(p) {
+  // +3 pro eigener Katze, +4 für die Mehrheit (>= 3 Katzen)
+  let owned = 0;
+  for (let c = 0; c < 4; c++) {
+    if (state.catOwner[c] === p) owned++;
+  }
+  return owned * 3 + (owned >= 3 ? 4 : 0);
+}
+
+function calcBingoTotal(p) {
+  let sum = 0;
+  for (let ri = 0; ri < 5; ri++) {
+    if (state.bingoRowDone[p][ri]) sum += BINGO_ROW_BONUS[ri];
+  }
+  for (let ci = 0; ci < 5; ci++) {
+    if (state.bingoColDone[p][ci]) sum += BINGO_COL_BONUS[ci];
+  }
+  // Gekreuzte Felder (Bonuspunkte vom Bingo-Raster selbst = Anzahl Kreuze)
+  for (let ri = 0; ri < 5; ri++) {
+    for (let ci = 0; ci < 5; ci++) {
+      if (BINGO_GRID[ri][ci] && state.bingoCrossed[p][ri][ci]) sum += 1;
+    }
+  }
+  return sum;
+}
+
+function countBingoCrossed(p) {
+  let c = 0;
+  for (let ri = 0; ri < 5; ri++)
+    for (let ci = 0; ci < 5; ci++)
+      if (BINGO_GRID[ri][ci] && state.bingoCrossed[p][ri][ci]) c++;
+  return c;
+}
+
+function calcPinkTotal(p) {
+  const filled = state.pinkCircles[p].filter(Boolean).length;
+  let sum = filled;
+  if (state.pinkFirstComplete === p) sum += 13;
+  return sum;
+}
+
+function calcCoinTotal(p) {
+  return Math.floor(state.coins[p] / 2); // 2 Münzen = 1 Punkt
+}
+
+function calcTotal(p) {
+  return calcBauTotal(p) + getCatBonus(p) + calcBingoTotal(p) + calcPinkTotal(p) + calcCoinTotal(p);
+}
+
+// ══════════════════════════════════════════════════════
+//  NUMPAD
+// ══════════════════════════════════════════════════════
+let _numpadCallback = null;
+let _numpadStr = '';
+
+function openNumpad(label, callback, defaultVal = null) {
+  _numpadCallback = callback;
+  _numpadStr = defaultVal !== null ? String(defaultVal) : '';
+  document.getElementById('numpad-label').textContent = label;
+  updateNumpadDisplay();
+  document.getElementById('numpad-overlay').classList.add('show');
+}
+
+function closeNumpad() {
+  document.getElementById('numpad-overlay').classList.remove('show');
+  _numpadCallback = null;
+  _numpadStr = '';
+}
+
+function numKey(k) {
+  if (k === 'del') {
+    _numpadStr = _numpadStr.slice(0, -1);
+  } else {
+    if (_numpadStr.length >= 3) return;
+    _numpadStr += k;
+  }
+  updateNumpadDisplay();
+}
+
+function updateNumpadDisplay() {
+  const el = document.getElementById('numpad-value');
+  el.textContent = _numpadStr === '' ? '—' : _numpadStr;
+}
+
+function numConfirm() {
+  if (_numpadCallback) {
+    const v = _numpadStr === '' ? null : parseInt(_numpadStr);
+    _numpadCallback(v);
+  }
+  closeNumpad();
+}
+
+// ══════════════════════════════════════════════════════
+//  CONTENT RENDERING
+// ══════════════════════════════════════════════════════
+function renderContent() {
+  const p = state.activeTab;
+  const el = document.getElementById('content');
+  el.innerHTML = '';
+
+  // 1. BAU-WERTUNG
+  el.appendChild(sectionHeader('⛩️', 'Bau-Wertung (Teil 1)', calcBauTotal(p) + getCatBonus(p)));
+  el.appendChild(renderBauBlock(p));
+
+  el.appendChild(divider());
+
+  // 2. RASENBINGO
+  el.appendChild(sectionHeader('🌿', 'Rasenbingo', calcBingoTotal(p)));
+  el.appendChild(renderBingoBlock(p));
+
+  el.appendChild(divider());
+
+  // 3. PINK RENNEN
+  el.appendChild(sectionHeader('🩷', 'Nimmersatter-Rennen', calcPinkTotal(p)));
+  el.appendChild(renderPinkBlock(p));
+
+  el.appendChild(divider());
+
+  // 4. MÜNZEN
+  el.appendChild(sectionHeader('🪙', 'Münzen', calcCoinTotal(p)));
+  el.appendChild(renderCoinsBlock(p));
+
+  el.appendChild(divider());
+
+  // 5. GESAMT
+  el.appendChild(sectionHeader('📊', 'Zwischenstand', ''));
+  el.appendChild(renderTotalPanel(p));
+}
+
+function sectionHeader(icon, title, total) {
+  const d = document.createElement('div');
+  d.className = 'section-header';
+  d.innerHTML = `
+    <span class="section-icon">${icon}</span>
+    <span class="section-title">${title}</span>
+    <span class="section-total">${total !== '' ? total : ''}</span>
+  `;
+  return d;
+}
+
+function divider() {
+  const d = document.createElement('div');
+  d.className = 'section-divider';
+  return d;
+}
+
+// ── BAU-BLOCK ──────────────────────────────────────────────────────
+function renderBauBlock(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'bau-block';
+
+  // Spalten-Labels
+  const colLabels = document.createElement('div');
+  colLabels.className = 'bau-col-labels';
+  for (let f = 0; f < 5; f++) {
+    const l = document.createElement('div');
+    l.className = 'bau-col-label';
+    l.textContent = `S${f+1}`;
+    colLabels.appendChild(l);
+  }
+  wrap.appendChild(colLabels);
+
+  // Farb-Reihen
+  for (let c = 0; c < 4; c++) {
+    const row = document.createElement('div');
+    row.className = 'bau-row';
+
+    const dot = document.createElement('div');
+    dot.className = 'bau-color-dot';
+    dot.style.background = EDGE_COLORS_HEX[c];
+    dot.title = EDGE_NAMES[c];
+    row.appendChild(dot);
+
+    const cells = document.createElement('div');
+    cells.className = 'bau-cells';
+
+    for (let f = 0; f < 5; f++) {
+      const cell = document.createElement('div');
+      const val = state.bauBlock[p][c][f];
+      cell.className = 'bau-cell' + (val !== null ? ' has-value' : '');
+      cell.textContent = val !== null ? val : '';
+      cell.addEventListener('click', () => {
+        openNumpad(
+          `${EDGE_NAMES[c]} · Feld ${f+1}`,
+          (v) => {
+            state.bauBlock[p][c][f] = v;
+            // Auto-check Spalten-Bonus
+            const colSum = calcBauColSum(p, f);
+            if (colSum > 13 && !state.bauColBonus[p][f]) {
+              state.bauColBonus[p][f] = true;
+            }
+            saveState(); renderAll();
+          },
+          val
+        );
+      });
+      cells.appendChild(cell);
+    }
+    row.appendChild(cells);
+
+    // Zeilen-Summe
+    const rowSum = calcBauRowSum(p, c);
+    const sumEl = document.createElement('div');
+    sumEl.className = 'bau-row-sum' + (rowSum > 0 ? ' has-value' : '');
+    sumEl.textContent = rowSum > 0 ? rowSum : '';
+    row.appendChild(sumEl);
+
+    wrap.appendChild(row);
+  }
+
+  // Spalten-Bonus Chips
+  const colBonusRow = document.createElement('div');
+  colBonusRow.className = 'bau-col-bonus-row';
+  for (let f = 0; f < 5; f++) {
+    const chip = document.createElement('div');
+    chip.className = 'bau-col-bonus-chip' + (state.bauColBonus[p][f] ? ' active' : '');
+    chip.title = 'Spalten-Bonus: Summe >13 → +10 Punkte. Tippen zum Umschalten.';
+    const colSum = calcBauColSum(p, f);
+    chip.textContent = state.bauColBonus[p][f] ? `+10✓` : `${colSum}>13?`;
+    chip.addEventListener('click', () => {
+      state.bauColBonus[p][f] = !state.bauColBonus[p][f];
+      saveState(); renderAll();
+    });
+    colBonusRow.appendChild(chip);
+  }
+  wrap.appendChild(colBonusRow);
+
+  // Katzen
+  const catRow = document.createElement('div');
+  catRow.className = 'bau-cat-row';
+  const catColors = EDGE_COLORS_HEX;
+  const catIcons = ['🔴','🟡','🩵','🩷'];
+  for (let c = 0; c < 4; c++) {
+    const chip = document.createElement('div');
+    const owned = state.catOwner[c] === p;
+    chip.className = 'cat-chip' + (owned ? ' owned' : '');
+    if (owned) chip.style.background = catColors[c];
+    chip.innerHTML = `<span class="cat-icon">🐱</span>${EDGE_NAMES[c]}`;
+    chip.title = `Katzen-Mehrheit ${EDGE_NAMES[c]}: +3 Punkte pro Katze`;
+    chip.addEventListener('click', () => {
+      if (state.catOwner[c] === p) {
+        state.catOwner[c] = null;
+      } else {
+        state.catOwner[c] = p;
+      }
+      saveState(); renderAll();
+    });
+    catRow.appendChild(chip);
+  }
+
+  // Katzen-Bonus Anzeige
+  const catBonus = getCatBonus(p);
+  if (catBonus > 0) {
+    const catBonusEl = document.createElement('div');
+    catBonusEl.style.cssText = 'font-size:0.7rem;color:#888;margin-top:6px;text-align:right;font-weight:700;';
+    catBonusEl.textContent = `🐱 Katzenbonus: +${catBonus} Punkte`;
+    catRow.appendChild(catBonusEl);
+  }
+  wrap.appendChild(catRow);
+
+  return wrap;
+}
+
+// ── BINGO-BLOCK ────────────────────────────────────────────────────
+function renderBingoBlock(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'bingo-block';
+
+  // Spalten-Bonus Header
+  const colBonusRow = document.createElement('div');
+  colBonusRow.className = 'bingo-col-bonus-row';
+  for (let ci = 0; ci < 5; ci++) {
+    const cb = document.createElement('div');
+    cb.className = 'bingo-col-bonus' + (state.bingoColDone[p][ci] ? ' done' : '');
+    cb.textContent = `+${BINGO_COL_BONUS[ci]}🪙`;
+    cb.title = `Spalten-Bonus: Ganze Spalte ${ci+1} angekreuzt → +${BINGO_COL_BONUS[ci]} Münzen`;
+    cb.addEventListener('click', () => {
+      state.bingoColDone[p][ci] = !state.bingoColDone[p][ci];
+      saveState(); renderAll();
+    });
+    colBonusRow.appendChild(cb);
+  }
+  const spacer = document.createElement('div');
+  spacer.className = 'bingo-spacer';
+  colBonusRow.appendChild(spacer);
+  wrap.appendChild(colBonusRow);
+
+  // Grid
+  const grid = document.createElement('div');
+  grid.className = 'bingo-grid';
+
+  for (let ri = 0; ri < 5; ri++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'bingo-row-el';
+
+    for (let ci = 0; ci < 5; ci++) {
+      const cell = BINGO_GRID[ri][ci];
+      const cellEl = document.createElement('div');
+      if (!cell) {
+        cellEl.className = 'bingo-cell empty';
+        cellEl.textContent = '·';
+      } else if (state.bingoCrossed[p][ri][ci]) {
+        cellEl.className = 'bingo-cell crossed';
+      } else {
+        cellEl.className = 'bingo-cell';
+        cellEl.textContent = cell.exact !== undefined ? `=${cell.exact}` : `>${cell.gt}`;
+        cellEl.addEventListener('click', () => {
+          state.bingoCrossed[p][ri][ci] = true;
+          // Zeilen-Bonus prüfen
+          const rowFull = BINGO_GRID[ri].every((c, ci2) => !c || state.bingoCrossed[p][ri][ci2]);
+          if (rowFull) state.bingoRowDone[p][ri] = true;
+          // Spalten-Bonus prüfen
+          const colFull = BINGO_GRID.every((r, ri2) => !r[ci] || state.bingoCrossed[p][ri2][ci]);
+          if (colFull) state.bingoColDone[p][ci] = true;
+          saveState(); renderAll();
+        });
+      }
+      rowEl.appendChild(cellEl);
+    }
+
+    // Zeilen-Bonus
+    const rb = document.createElement('div');
+    rb.className = 'bingo-row-bonus-el' + (state.bingoRowDone[p][ri] ? ' done' : '');
+    rb.innerHTML = `<div class="flower">🌸</div><div class="pts">${state.bingoRowDone[p][ri] ? '✓' : '+'+BINGO_ROW_BONUS[ri]}</div>`;
+    rb.title = `Zeilen-Bonus: Ganze Zeile ${ri+1} angekreuzt → +${BINGO_ROW_BONUS[ri]} Punkte`;
+    rb.addEventListener('click', () => {
+      state.bingoRowDone[p][ri] = !state.bingoRowDone[p][ri];
+      saveState(); renderAll();
+    });
+    rowEl.appendChild(rb);
+
+    grid.appendChild(rowEl);
+  }
+  wrap.appendChild(grid);
+
+  // Info
+  const info = document.createElement('div');
+  info.style.cssText = 'font-size:0.67rem;color:#aaa;margin-top:8px;text-align:center;';
+  const crossed = countBingoCrossed(p);
+  info.textContent = `${crossed} Felder angekreuzt · Zeilen/Spalten antippen zum Umschalten`;
+  wrap.appendChild(info);
+
+  return wrap;
+}
+
+// ── PINK BLOCK ─────────────────────────────────────────────────────
+function renderPinkBlock(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'pink-block';
+
+  const grid = document.createElement('div');
+  grid.className = 'pink-circles-grid';
+
+  for (let i = 0; i < 15; i++) {
+    const c = document.createElement('div');
+    c.className = 'pink-circle' + (state.pinkCircles[p][i] ? ' filled' : '');
+    c.textContent = state.pinkCircles[p][i] ? '✕' : '';
+    c.addEventListener('click', () => {
+      state.pinkCircles[p][i] = !state.pinkCircles[p][i];
+      const filled = state.pinkCircles[p].filter(Boolean).length;
+      if (filled === 15 && state.pinkFirstComplete === null) {
+        state.pinkFirstComplete = p;
+      } else if (filled < 15 && state.pinkFirstComplete === p) {
+        state.pinkFirstComplete = null;
+      }
+      saveState(); renderAll();
+    });
+    grid.appendChild(c);
+  }
+  wrap.appendChild(grid);
+
+  const filled = state.pinkCircles[p].filter(Boolean).length;
+  const info = document.createElement('div');
+  info.className = 'pink-info';
+  info.innerHTML = `<span>${filled}</span> / 15 Kreise = <span>${filled} Punkte</span>`;
+  wrap.appendChild(info);
+
+  // Rennen-Bonus
+  const raceRow = document.createElement('div');
+  raceRow.className = 'race-bonus-row';
+
+  for (let i = 0; i < n(); i++) {
+    const btn = document.createElement('button');
+    btn.className = 'race-btn' + (state.pinkFirstComplete === i ? ' active' : '');
+    btn.textContent = `🏆 ${state.playerNames[i]} (+13)`;
+    btn.title = 'Wer zuerst alle 15 Kreise hat bekommt +13 Punkte';
+    btn.addEventListener('click', () => {
+      state.pinkFirstComplete = state.pinkFirstComplete === i ? null : i;
+      saveState(); renderAll();
+    });
+    raceRow.appendChild(btn);
+  }
+  const raceLabel = document.createElement('div');
+  raceLabel.style.cssText = 'font-size:0.67rem;color:#aaa;margin-top:4px;text-align:center;';
+  raceLabel.textContent = 'Wer zuerst alle 15 schafft: +13 Punkte';
+
+  wrap.appendChild(raceRow);
+  wrap.appendChild(raceLabel);
+  return wrap;
+}
+
+// ── MÜNZEN BLOCK ───────────────────────────────────────────────────
+function renderCoinsBlock(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'coins-block';
+
+  const row = document.createElement('div');
+  row.className = 'coins-row';
+
+  const display = document.createElement('div');
+  display.className = 'coins-display';
+  display.textContent = `🪙 ${state.coins[p]}`;
+
+  const controls = document.createElement('div');
+  controls.className = 'coins-controls';
+
+  const btnMinus = document.createElement('div');
+  btnMinus.className = 'coin-btn';
+  btnMinus.textContent = '−';
+  btnMinus.addEventListener('click', () => {
+    if (state.coins[p] > 0) { state.coins[p]--; saveState(); renderAll(); }
+  });
+
+  const btnPlus = document.createElement('div');
+  btnPlus.className = 'coin-btn';
+  btnPlus.textContent = '+';
+  btnPlus.addEventListener('click', () => {
+    state.coins[p]++; saveState(); renderAll();
+  });
+
+  controls.appendChild(btnMinus);
+  controls.appendChild(btnPlus);
+  row.appendChild(display);
+  row.appendChild(controls);
+  wrap.appendChild(row);
+
+  const note = document.createElement('div');
+  note.className = 'coin-note';
+  const pts = calcCoinTotal(p);
+  note.textContent = `2 Münzen = 1 Punkt → ${pts} Punkte`;
+  wrap.appendChild(note);
+
+  return wrap;
+}
+
+// ── TOTAL PANEL ────────────────────────────────────────────────────
+function renderTotalPanel(p) {
+  const wrap = document.createElement('div');
+  wrap.className = 'total-panel';
+
+  const rows = [
+    ['⛩️ Bau-Wertung', calcBauTotal(p) - Object.values(state.bauColBonus[p]).filter(Boolean).length * 10],
+    ['🏅 Spalten-Boni', state.bauColBonus[p].filter(Boolean).length * 10],
+    ['🐱 Katzen-Bonus', getCatBonus(p)],
+    ['🌿 Rasenbingo', calcBingoTotal(p)],
+    ['🩷 Pink-Rennen', calcPinkTotal(p)],
+    ['🪙 Münzen', calcCoinTotal(p)],
+  ];
+
+  const rowsEl = document.createElement('div');
+  rowsEl.className = 'total-rows';
+
+  rows.forEach(([label, val]) => {
+    const r = document.createElement('div');
+    r.className = 'total-row';
+    r.innerHTML = `<span class="label">${label}</span><span class="val">${val}</span>`;
+    rowsEl.appendChild(r);
+  });
+
+  const finalRow = document.createElement('div');
+  finalRow.className = 'total-row total-final';
+  finalRow.innerHTML = `<span class="label">Gesamt</span><span class="val">${calcTotal(p)}</span>`;
+  rowsEl.appendChild(finalRow);
+
+  wrap.appendChild(rowsEl);
+  return wrap;
+}
+
+// ══════════════════════════════════════════════════════
+//  GAMEOVER
+// ══════════════════════════════════════════════════════
+function openGameOver() {
+  const totals = Array.from({length: n()}, (_, i) => ({
+    i, name: state.playerNames[i], total: calcTotal(i),
+    bau: calcBauTotal(i), cats: getCatBonus(i),
+    bingo: calcBingoTotal(i), pink: calcPinkTotal(i), coins: calcCoinTotal(i),
+  }));
+  totals.sort((a, b) => b.total - a.total);
+
+  const content = document.getElementById('go-content');
+  content.innerHTML = '';
+
+  // Tie check
+  const hasTie = totals.length > 1 && totals[0].total === totals[1].total;
+  if (hasTie) {
+    const tieEl = document.createElement('div');
+    tieEl.className = 'go-tie-note';
+    tieEl.textContent = '🤝 Gleichstand! Münzen entscheiden.';
+    content.appendChild(tieEl);
+  }
+
+  const ranking = document.createElement('div');
+  ranking.className = 'go-ranking';
+
+  const rankEmoji = ['🥇','🥈','🥉','4️⃣'];
+  totals.forEach((pl, rank) => {
+    const row = document.createElement('div');
+    row.className = 'go-player-row' + (rank === 0 && !hasTie ? ' winner' : '');
+
+    const color = PLAYER_COLORS_HEX[pl.i];
+    row.innerHTML = `
+      <div class="go-rank">${rankEmoji[rank]}</div>
+      <div>
+        <div class="go-player-name" style="color:${color}">${pl.name}</div>
+        <div class="go-player-detail">⛩️${pl.bau}+🐱${pl.cats} · 🌿${pl.bingo} · 🩷${pl.pink} · 🪙${pl.coins}</div>
+      </div>
+      <div class="go-player-score">${pl.total}</div>
+    `;
+    ranking.appendChild(row);
+  });
+
+  content.appendChild(ranking);
+  document.getElementById('gameover-overlay').classList.add('show');
+}
+
+function closeGameOver() {
+  document.getElementById('gameover-overlay').classList.remove('show');
+}
+
+function resetAll() {
+  const names = [...state.playerNames];
+  state = defaultState(names);
+  saveState();
+  closeGameOver();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════
+//  SETUP
+// ══════════════════════════════════════════════════════
+let _setupCount = 2;
+let _setupNames = ['Reisender 1','Reisender 2','Reisender 3','Reisender 4'];
+
+function openSetup() {
+  _setupCount = n();
+  _setupNames = [...state.playerNames, 'Reisender 3','Reisender 4'].slice(0, 4);
+  document.getElementById('setup-count-display').textContent = _setupCount;
+  renderSetupNames();
+  document.getElementById('setup-overlay').classList.add('show');
+}
+
+function closeSetup() {
+  document.getElementById('setup-overlay').classList.remove('show');
+}
+
+function changeCount(delta) {
+  _setupCount = Math.min(4, Math.max(2, _setupCount + delta));
+  document.getElementById('setup-count-display').textContent = _setupCount;
+  renderSetupNames();
+}
+
+function renderSetupNames() {
+  const wrap = document.getElementById('setup-names');
+  wrap.innerHTML = '';
+  for (let i = 0; i < _setupCount; i++) {
+    const row = document.createElement('div');
+    row.className = 'setup-name-row';
+    const dot = document.createElement('div');
+    dot.className = 'setup-color-dot';
+    dot.style.background = PLAYER_COLORS_HEX[i];
+    const inp = document.createElement('input');
+    inp.className = 'setup-name-input';
+    inp.type = 'text';
+    inp.value = _setupNames[i] || `Reisender ${i+1}`;
+    inp.maxLength = 18;
+    inp.dataset.idx = i;
+    inp.addEventListener('input', () => { _setupNames[i] = inp.value; });
+    row.appendChild(dot);
+    row.appendChild(inp);
+    wrap.appendChild(row);
+  }
+}
+
+function applySetup() {
+  const names = [];
+  for (let i = 0; i < _setupCount; i++) {
+    names.push(_setupNames[i] || `Reisender ${i+1}`);
+  }
+  state = defaultState(names);
+  saveState();
+  closeSetup();
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER ALL
+// ══════════════════════════════════════════════════════
+function renderAll() {
+  renderTabs();
+  renderContent();
+}
+
+// ══════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════
+renderAll();
+</script>
+</body>
+</html>

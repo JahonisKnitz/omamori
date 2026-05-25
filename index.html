@@ -1176,6 +1176,26 @@
     0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); transform: scale(1); }
     50%      { box-shadow: 0 0 0 12px rgba(255,255,255,0); transform: scale(1.03); }
   }
+  #cover-scoring-btn {
+    position: relative; z-index: 2;
+    margin-bottom: 22px;
+    background: rgba(212,168,0,0.18);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(212,168,0,0.55);
+    color: rgba(255,255,255,0.88); border-radius: 30px;
+    padding: 10px 28px;
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem; letter-spacing: 0.08em;
+    cursor: pointer;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+  }
+  #cover-scoring-btn:hover {
+    background: rgba(212,168,0,0.32);
+    border-color: rgba(212,168,0,0.85);
+  }
+  #cover-scoring-btn:active { transform: scale(0.96); }
   #cover-tagline {
     position: relative; z-index: 2;
     color: rgba(255,255,255,0.7);
@@ -2112,6 +2132,7 @@
     <img src="cover.png" alt="Omamori – Die Gunst der Geister">
   <div id="cover-tagline">2–4 Spielende · 45 Min · ab 9 J.</div>
   <button id="cover-start-btn">🐾 Abenteuer beginnen</button>
+  <button id="cover-scoring-btn" onclick="window.location.href='omamori-scoring.html'">📊 Wertungsblock öffnen</button>
   </div>
 </div>
 
