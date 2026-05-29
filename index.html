@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Omamori – Die Gunst der Geister</title>
+<link rel="icon" type="image/png" href="omamori-icon.png">
+<link rel="apple-touch-icon" href="omamori-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Omamori">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400;700&display=swap');
 
@@ -3826,7 +3830,7 @@ const BINGO_GRID = [
   [null,      null,      {gt:5},  {gt:6},    {gt:7}],      // Zeile 5 → +9
 ];
 const BINGO_ROW_BONUS  = [17, 15, 13, 11, 9];   // Punkte pro vollständiger Zeile
-const BINGO_COL_BONUS  = [1,  2,  3,  3,  3];   // Münzen pro vollständiger Spalte
+const BINGO_COL_BONUS  = [0,  0,  2,  3,  5];   // Münzen pro vollständiger Spalte
 
 // Prüft ob eine Gras-Summe ein Feld erfüllt
 function cellMatches(cell, sum){
